@@ -50,7 +50,7 @@ def add_custom_command(command: str, response: str) -> None:
     cur = conn.cursor()
     cur.execute(
         "INSERT OR REPLACE INTO custom_commands (command, response) VALUES (?, ?)",
-        (command, response),
+        (command.lower(), response),
     )
     conn.commit()
     conn.close()
@@ -59,7 +59,9 @@ def add_custom_command(command: str, response: str) -> None:
 def get_custom_response(command: str) -> Optional[str]:
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT response FROM custom_commands WHERE command = ?", (command,))
+    cur.execute(
+        "SELECT response FROM custom_commands WHERE command = ?", (command.lower(),)
+    )
     row = cur.fetchone()
     conn.close()
     return row[0] if row else None

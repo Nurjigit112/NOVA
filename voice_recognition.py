@@ -1,8 +1,8 @@
 import speech_recognition as sr
 
 
-def listen_command(activation_phrase="нова, включись"):
-    """Слушает микрофон и возвращает распознанную команду."""
+def listen_command():
+    """Слушает микрофон и возвращает текст без проверки ключевых слов."""
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         print("Ожидание команды...")
@@ -10,8 +10,7 @@ def listen_command(activation_phrase="нова, включись"):
     try:
         text = recognizer.recognize_google(audio, language="ru-RU")
         print(f"Распознано: {text}")
-        if activation_phrase.lower() in text.lower():
-            return text.lower().replace(activation_phrase.lower(), "").strip()
+        return text.lower().strip()
     except sr.UnknownValueError:
         print("Не удалось распознать речь")
     except sr.RequestError as e:
