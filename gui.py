@@ -1,11 +1,11 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
+import os
+import sys
 
 from voice_recognition import listen_command
-from system_control import execute_shell
-from tts import say
-from learning import store_interaction
+import assistant_core
 
 LOG_FILE = 'logs/nova.log'
 
@@ -23,9 +23,8 @@ def start_listen(text_widget):
     def worker():
         cmd = listen_command()
         if cmd:
-            result = execute_shell(cmd)
-            say(result)
-            store_interaction(cmd, result)
+            result = assistant_core.process_command(cmd)
+            assistant_core.say(result)
             append_log(text_widget, f"> {cmd}\n{result}")
     threading.Thread(target=worker, daemon=True).start()
 
@@ -42,6 +41,21 @@ def build_gui():
 
     btn_listen = tk.Button(frame, text='Включить микрофон', command=lambda: start_listen(log_area))
     btn_listen.pack(fill='x', pady=5)
+
+    def clear_logs(text_widget):
+        open(LOG_FILE, 'w').close()
+        text_widget.config(state='normal')
+        text_widget.delete('1.0', tk.END)
+        text_widget.config(state='disabled')
+
+    def restart_app():
+        os.execl(sys.executable, sys.executable, *sys.argv)
+
+    btn_clear = tk.Button(frame, text='Очистить логи', command=lambda: clear_logs(log_area))
+    btn_clear.pack(fill='x', pady=5)
+
+    btn_restart = tk.Button(frame, text='Перезапуск', command=restart_app)
+    btn_restart.pack(fill='x', pady=5)
 
     btn_stop = tk.Button(frame, text='Выход', command=root.destroy)
     btn_stop.pack(fill='x', pady=5)

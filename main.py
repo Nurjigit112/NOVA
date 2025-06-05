@@ -1,11 +1,13 @@
 """Главный модуль запуска ассистента"""
 import argparse
+import threading
 from voice_recognition import listen_command
-from system_control import execute_shell
 from gui import build_gui
 from telegram_bot import run_bot
 from tts import say
-from learning import init_db, store_interaction
+from learning import init_db
+import assistant_core
+import scheduler
 
 
 def main():
@@ -15,6 +17,7 @@ def main():
     args = parser.parse_args()
 
     init_db()
+    threading.Thread(target=scheduler.run_scheduler, daemon=True).start()
 
     if args.bot:
         run_bot()
@@ -24,10 +27,9 @@ def main():
         while True:
             cmd = listen_command()
             if cmd:
-                result = execute_shell(cmd)
+                result = assistant_core.process_command(cmd)
                 print(result)
                 say(result)
-                store_interaction(cmd, result)
     else:
         build_gui()
 

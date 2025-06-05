@@ -19,6 +19,15 @@ def init_db():
         )
         """
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS custom_commands (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            command TEXT UNIQUE,
+            response TEXT
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -33,6 +42,27 @@ def store_interaction(command: str, response: str) -> None:
     )
     conn.commit()
     conn.close()
+
+
+def add_custom_command(command: str, response: str) -> None:
+    """Запоминает пользовательскую команду."""
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT OR REPLACE INTO custom_commands (command, response) VALUES (?, ?)",
+        (command, response),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_custom_response(command: str) -> Optional[str]:
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("SELECT response FROM custom_commands WHERE command = ?", (command,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else None
 
 
 def analyze_code(file_path: str) -> str:
