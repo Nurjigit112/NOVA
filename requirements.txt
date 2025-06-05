@@ -1,0 +1,10 @@
+speechrecognition
+pyaudio
+pyttsx3
+psutil
+python-telegram-bot==20.3
+tk
+requests
+schedule
+openai
+pillow
