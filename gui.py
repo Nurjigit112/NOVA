@@ -5,6 +5,7 @@ import threading
 from voice_recognition import listen_command
 from system_control import execute_shell
 from tts import say
+from learning import store_interaction
 
 LOG_FILE = 'logs/nova.log'
 
@@ -24,6 +25,7 @@ def start_listen(text_widget):
         if cmd:
             result = execute_shell(cmd)
             say(result)
+            store_interaction(cmd, result)
             append_log(text_widget, f"> {cmd}\n{result}")
     threading.Thread(target=worker, daemon=True).start()
 
